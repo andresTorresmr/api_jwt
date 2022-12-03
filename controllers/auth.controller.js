@@ -1,4 +1,8 @@
 import { pool } from "../database/db.js";
+import bycryptjs from "bcryptjs";
+import { json } from "express";
+import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../database/config.js";
 
 // OBTENER USUARIOS
 export const getUsers = async (req, res) => {
@@ -72,6 +76,8 @@ export const insertUser = async (req, res) => {
     rolid,
   } = req.body;
   try {
+    const salt = await bycryptjs.genSalt(10);
+    const hashpassword = await bycryptjs.hash(password, salt);
     const query =
       "INSERT INTO persona (nombres, apellidos, telefono, email_user, calle, numero, password, rolid) VALUES (?,?,?,?,?,?,?,?)";
     const [rows] = await pool.query(query, [
@@ -81,7 +87,7 @@ export const insertUser = async (req, res) => {
       email,
       calle,
       numero,
-      password,
+      hashpassword,
       rolid,
     ]);
     res.json({
@@ -163,4 +169,44 @@ export const deleteUser = async (req, res) => {
       data: "Algo salió mal",
     });
   }
+};
+
+//LOGIN PRUEBA
+export const loginUser = async (req, res) => {
+  console.log(req.body);
+  const { email, password } = req.body;
+  try {
+    const [rows] = await pool.query(
+      "Select password, status, idpersona from persona where email_user = ?",
+      [email]
+    );
+
+    //BUSCA SI REGRESA REGISTROS
+    if (rows.length <= 0)
+      return res.status(403).json({ msg: "Usuario no encontrado" });
+
+    //VALIDA QUE NO ESTÉ INACTIVO
+    const status = rows[0]["status"];
+    if (status != 1) return res.status(403).json({ msg: "Usuario inactivo" });
+
+    //COMPARA LA CONTRASEÑA DE LA BASE DE DATOS CON LA BRINDADA EN EL JSON
+    const passwordDB = rows[0]["password"];
+    const compare = await bycryptjs.compare(password, passwordDB);
+    if (!compare) return res.status(403).json({ msg: "Contraseña incorrecta" });
+
+    //CASO DE INICIO DE SESIÓN EXITOSO. PASA AL SIGUIENTE PROCESO
+    const uid = rows[0]["idpersona"];
+    //res.json({ msg: "Inicio de sesión exitoso" });
+
+    //GENERAR JWT
+    const token = jwt.sign({ uid }, JWT_SECRET);
+    res.json({ token });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      data: "Algo salió mal",
+    });
+  }
+
+  // res.json();
 };

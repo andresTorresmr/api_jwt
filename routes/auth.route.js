@@ -8,6 +8,7 @@ import {
   insertUser,
   updateUser,
   deleteUser,
+  loginUser,
 } from "../controllers/auth.controller.js";
 
 const router = express.Router();
@@ -38,4 +39,7 @@ router.patch("/users/update/:id", updateUser);
 
 // BORRAR USUARIOS
 router.post("/users/delete/:id", deleteUser);
+
+// LOGIN
+router.post("/users/login/", loginUser);
 export default router;
