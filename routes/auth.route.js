@@ -1,6 +1,7 @@
 import express from "express";
 import { body } from "express-validator";
 import { validations } from "../middlewares/validations.js";
+import { requireToken } from "../middlewares/requireToken.js";
 import {
   getUsers,
   getUsersByRole,
@@ -13,7 +14,7 @@ import {
 
 const router = express.Router();
 
-router.get("/users/", getUsers);
+router.get("/users/", requireToken, getUsers);
 
 // VER TODOS LOS USUARIOS DE UN ROL ESPECÍFICO
 router.get("/users/role/:id", getUsersByRole);

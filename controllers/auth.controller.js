@@ -1,18 +1,20 @@
 import { pool } from "../database/db.js";
 import bycryptjs from "bcryptjs";
-import { json } from "express";
-import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../database/config.js";
+import { generateToken } from "../helpers/tokenManager.js";
 
 // OBTENER USUARIOS
 export const getUsers = async (req, res) => {
   try {
-    const [result] = await pool.query("Select * from persona");
-    res.json({ data: result });
+    if (req.uid === 64) {
+      const [result] = await pool.query("Select * from persona");
+      res.json({ data: result });
+    } else {
+      throw new Error("Usuario no tiene permisos para acceder a la ruta");
+    }
   } catch (error) {
-    console.log(error);
+    //console.log(error);
     return res.status(500).json({
-      data: "Algo salió mal",
+      error: error.message,
     });
   }
 };
@@ -199,8 +201,8 @@ export const loginUser = async (req, res) => {
     //res.json({ msg: "Inicio de sesión exitoso" });
 
     //GENERAR JWT
-    const token = jwt.sign({ uid }, JWT_SECRET);
-    res.json({ token });
+    const { token, expiresIn } = generateToken(uid);
+    return res.json({ token, expiresIn });
   } catch (error) {
     console.log(error);
     return res.status(500).json({
