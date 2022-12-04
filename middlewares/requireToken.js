@@ -4,7 +4,7 @@ import { JWT_SECRET } from "../database/config.js";
 export const requireToken = (req, res, next) => {
   try {
     let token = req.headers?.authorization;
-    if (!token) throw new Error("No existe el token en el header. Usa Bearer");
+    if (!token) throw new Error("No Bearer");
 
     token = token.split(" ")[1];
     const { uid } = jwt.verify(token, JWT_SECRET);
