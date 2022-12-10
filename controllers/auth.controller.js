@@ -1,6 +1,11 @@
 import { pool } from "../database/db.js";
 import bycryptjs from "bcryptjs";
-import { generateToken } from "../helpers/tokenManager.js";
+import { JWT_REFRESH } from "../database/config.js";
+import {
+  generateRefreshToken,
+  generateToken,
+} from "../helpers/tokenManager.js";
+import jwt from "jsonwebtoken";
 
 // OBTENER USUARIOS
 export const getUsers = async (req, res) => {
@@ -202,6 +207,8 @@ export const loginUser = async (req, res) => {
 
     //GENERAR JWT
     const { token, expiresIn } = generateToken(uid);
+    generateRefreshToken(uid, res);
+
     return res.json({ token, expiresIn });
   } catch (error) {
     console.log(error);
@@ -211,4 +218,34 @@ export const loginUser = async (req, res) => {
   }
 
   // res.json();
+};
+
+export const refreshToken = (req, res) => {
+  try {
+    const refreshTokenCookie = req.cookies.refreshToken;
+    if (!refreshTokenCookie) throw new Error("No existe el token");
+    const { uid } = jwt.verify(refreshTokenCookie, JWT_REFRESH);
+    console.log(uid);
+
+    const { token, expiresIn } = generateToken(uid);
+    return res.json({ token, expiresIn });
+  } catch (error) {
+    //console.log(error);
+    const TokenVerificationErrors = {
+      "invalid signature": "La firma del token no es válida",
+      "jwt expired": "Token expirado",
+      "invalid token": "Token inválido",
+      "No Bearer": "Utiliza el formato Bearer",
+      "jwt malformed": "JWT formato no válido ",
+      "No existe el token": "No existe el token",
+    };
+    return res
+      .status(401)
+      .json({ error: TokenVerificationErrors[error.message] });
+  }
+};
+
+export const logout = (req, res) => {
+  res.clearCookie("refreshToken");
+  res.json({ ok: true });
 };

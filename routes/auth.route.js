@@ -10,6 +10,8 @@ import {
   updateUser,
   deleteUser,
   loginUser,
+  refreshToken,
+  logout,
 } from "../controllers/auth.controller.js";
 
 const router = express.Router();
@@ -20,7 +22,7 @@ router.get("/users/", requireToken, getUsers);
 router.get("/users/role/:id", getUsersByRole);
 
 // VER UN USUARIO ESPECÍFICO
-router.get("/users/:id", getUser);
+router.get("/users/:id", requireToken, getUser);
 
 // INSERTAR USUARIOS
 router.post(
@@ -43,4 +45,8 @@ router.post("/users/delete/:id", deleteUser);
 
 // LOGIN
 router.post("/users/login/", loginUser);
+
+router.get("/refreshh/", refreshToken);
+
+router.get("/logout", logout);
 export default router;

@@ -18,6 +18,7 @@ export const requireToken = (req, res, next) => {
       "jwt expired": "Token expirado",
       "invalid token": "Token inválido",
       "No Bearer": "Utiliza el formato Bearer",
+      "jwt malformed": "JWT formato no válido ",
     };
     return res
       .status(401)

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ruta protegida</title>
+  </head>
+  <body>
+    <h1>Ruta protegida😒</h1>
+
+    <button id="logout">Cerrar Sesión</button>
+    <div class="app">
+      <h2>id:</h2>
+      <p id="id"></p>
+      <h2>Email:</h2>
+      <p id="email"></p>
+      <h2>Nombres:</h2>
+      <p id="nombres"></p>
+      <h2>Apellidos:</h2>
+      <p id="apellidos"></p>
+      <h2>Telefono:</h2>
+      <p id="tel"></p>
+      <h2>Calle:</h2>
+      <p id="calle"></p>
+      <h2>Número:</h2>
+      <p id="numero"></p>
+      <h2>Rol:</h2>
+      <p id="rol"></p>
+      <h2>Contraseña:</h2>
+      <p id="contra"></p>
+      <h2>Fecha de creación:</h2>
+      <p id="date"></p>
+    </div>
+
+    <script>
+      const logout = document.getElementById("logout");
+      logout.addEventListener("click", async () => {
+        const res = await fetch("/api/v1/logout", {
+          method: "GET",
+          // headers: {
+          //   Authorization: `Bearer ${token}`,
+          //   "Content-Type": "application/json",
+          // },
+          // credentials: "include",
+        });
+        console.log(res);
+      });
+
+      document.addEventListener("DOMContentLoaded", async (e) => {
+        try {
+          const restoken = await fetch("/api/v1/refreshh", {
+            method: "GET",
+            credentials: "include",
+          });
+
+          const { token } = await restoken.json();
+
+          const res = await fetch("/api/v1/users/64", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+          });
+          if (!res) return;
+          console.log(res.ok, res.status);
+          const data = await res.json();
+          if (res.ok) {
+            document.getElementById("id").textContent = data.data.idpersona;
+            document.getElementById("email").textContent = data.data.email_user;
+            document.getElementById("nombres").textContent = data.data.nombres;
+            document.getElementById("apellidos").textContent =
+              data.data.apellidos;
+            document.getElementById("tel").textContent = data.data.telefono;
+            document.getElementById("calle").textContent = data.data.calle;
+            document.getElementById("numero").textContent = data.data.numero;
+            document.getElementById("rol").textContent = data.data.rolid;
+            document.getElementById("contra").textContent = data.data.password;
+            document.getElementById("date").textContent = data.data.datecreated;
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      });
+    </script>
+  </body>
+</html>
