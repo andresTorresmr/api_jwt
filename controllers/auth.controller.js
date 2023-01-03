@@ -4,6 +4,7 @@ import { JWT_REFRESH } from "../database/config.js";
 import {
   generateRefreshToken,
   generateToken,
+  tokenVerificationErrors,
 } from "../helpers/tokenManager.js";
 import jwt from "jsonwebtoken";
 
@@ -83,6 +84,14 @@ export const insertUser = async (req, res) => {
     rolid,
   } = req.body;
   try {
+    const repeated =
+      "SELECT * from persona WHERE email_user = ? and calle = ? and numero = ? and status != 0";
+    const [result] = await pool.query(repeated, [email, calle, numero]);
+    if (result.length > 0)
+      return res.status(400).json({
+        data: "El usuario ya está registrado",
+      });
+
     const salt = await bycryptjs.genSalt(10);
     const hashpassword = await bycryptjs.hash(password, salt);
     const query =
@@ -222,26 +231,13 @@ export const loginUser = async (req, res) => {
 
 export const refreshToken = (req, res) => {
   try {
-    const refreshTokenCookie = req.cookies.refreshToken;
-    if (!refreshTokenCookie) throw new Error("No existe el token");
-    const { uid } = jwt.verify(refreshTokenCookie, JWT_REFRESH);
-    console.log(uid);
-
-    const { token, expiresIn } = generateToken(uid);
+    const { token, expiresIn } = generateToken(req.uid);
     return res.json({ token, expiresIn });
   } catch (error) {
-    //console.log(error);
-    const TokenVerificationErrors = {
-      "invalid signature": "La firma del token no es válida",
-      "jwt expired": "Token expirado",
-      "invalid token": "Token inválido",
-      "No Bearer": "Utiliza el formato Bearer",
-      "jwt malformed": "JWT formato no válido ",
-      "No existe el token": "No existe el token",
-    };
-    return res
-      .status(401)
-      .json({ error: TokenVerificationErrors[error.message] });
+    console.log(error);
+    return res.status(500).json({
+      data: "Algo salió mal",
+    });
   }
 };
 

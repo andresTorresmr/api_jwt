@@ -10,3 +10,5 @@ export const DB_PORT = process.env.DB_PORT;
 export const JWT_SECRET = process.env.JWT_SECRET;
 export const JWT_REFRESH = process.env.JWT_REFRESH;
 export const MODE = process.env.MODE;
+
+export const USERS = process.env.MODULEUSER;

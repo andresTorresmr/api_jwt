@@ -1,6 +1,4 @@
 import express from "express";
-import { body } from "express-validator";
-import { validations } from "../middlewares/validations.js";
 import { requireToken } from "../middlewares/requireToken.js";
 import {
   getUsers,
@@ -13,6 +11,10 @@ import {
   refreshToken,
   logout,
 } from "../controllers/auth.controller.js";
+import { requireRefreshToken } from "../middlewares/requireRefreshToken.js";
+import { bodyRegisterValidator } from "../middlewares/validatorManager.js";
+import { permissionCheckCreate } from "../middlewares/permissionCheck.js";
+import { USERS } from "../database/config.js";
 
 const router = express.Router();
 
@@ -27,13 +29,9 @@ router.get("/users/:id", requireToken, getUser);
 // INSERTAR USUARIOS
 router.post(
   "/users/insert/",
-  [
-    body("email", "Formato de email inválido")
-      .trim()
-      .isEmail()
-      .normalizeEmail(),
-  ],
-  validations,
+  requireToken,
+  bodyRegisterValidator,
+  permissionCheckCreate([USERS]),
   insertUser
 );
 
@@ -46,7 +44,7 @@ router.post("/users/delete/:id", deleteUser);
 // LOGIN
 router.post("/users/login/", loginUser);
 
-router.get("/refreshh/", refreshToken);
+router.get("/refresh/", requireRefreshToken, refreshToken);
 
 router.get("/logout", logout);
 export default router;
