@@ -7,7 +7,6 @@ export const validations = (req, res, next) => {
       errors: errors.array(),
     });
   }
-
   next();
 };
 
