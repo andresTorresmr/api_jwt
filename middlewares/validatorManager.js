@@ -15,3 +15,9 @@ export const bodyRegisterValidator = [
   body("password", "Algo salió mal").trim().notEmpty(),
   validations, //SIEMPRE PONER ESTE PARA QUE VALIDE TODO EL BODY
 ];
+
+//VERIFICA QUE EL CAMPO DE NOMBRE NO ESTÉ VACÍO
+export const bodyRoleValidator = [
+  body("nombrerol", "El nombre del rol no puede ir vacío").trim().notEmpty(),
+  validations,
+];

@@ -11,12 +11,10 @@ import jwt from "jsonwebtoken";
 // OBTENER USUARIOS
 export const getUsers = async (req, res) => {
   try {
-    if (req.uid === 64) {
-      const [result] = await pool.query("Select * from persona");
-      res.json({ data: result });
-    } else {
-      throw new Error("Usuario no tiene permisos para acceder a la ruta");
-    }
+    const [result] = await pool.query(
+      "Select * from persona where status != 0"
+    );
+    res.json({ data: result });
   } catch (error) {
     //console.log(error);
     return res.status(500).json({
@@ -193,7 +191,7 @@ export const loginUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const [rows] = await pool.query(
-      "Select password, status, idpersona from persona where email_user = ?",
+      "Select password, status, idpersona from persona where email_user = ? and status != 0",
       [email]
     );
 
