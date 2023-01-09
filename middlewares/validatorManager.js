@@ -18,6 +18,6 @@ export const bodyRegisterValidator = [
 
 //VERIFICA QUE EL CAMPO DE NOMBRE NO ESTÉ VACÍO
 export const bodyRoleValidator = [
-  body("nombrerol", "El nombre del rol no puede ir vacío").trim().notEmpty(),
+  body("nombre", "El nombre del rol no puede ir vacío").trim().notEmpty(),
   validations,
 ];

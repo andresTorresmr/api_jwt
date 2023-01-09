@@ -39,15 +39,14 @@ export const permissionCheckRead = (moduleName) => async (req, res, next) => {
       [id]
     );
     const role = result[0]["rolid"];
-    console.log(role);
+    //console.log(role);
     const module = [].concat(moduleName)[0];
-    console.log(module);
+    //console.log(module);
     const [rows] = await pool.query(
       "Select r from permisos where rolid = ? and moduloid = ? ",
       [role, module]
     );
     const permission = rows[0]["r"];
-    console.log("Permisos: " + permission);
     if (permission === 0)
       throw new Error("No tienes permisos para ejecutar esta acción.");
 

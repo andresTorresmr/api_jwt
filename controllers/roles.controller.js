@@ -3,7 +3,9 @@ import { pool } from "../database/db.js";
 // OBTENER ROLES
 export const getRoles = async (req, res) => {
   try {
-    const [result] = await pool.query("Select * from rol where status != 0");
+    const [result] = await pool.query(
+      "Select * from rol where status not in (0)"
+    );
     res.json({ data: result });
   } catch (error) {
     //console.log(error);
